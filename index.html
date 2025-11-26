@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BINGO號碼產生器 (1-40)</title>
+    <title>BINGO號碼產生器</title>
     <style>
         * {
             margin: 0;
@@ -518,7 +518,7 @@
         </div>
 
         <div class="history">
-            <h3>已抽取的號碼</h3>
+            <h3>📋 已抽取的號碼</h3>
             <div id="historyNumbers" class="history-numbers"></div>
         </div>
     </div>
@@ -663,20 +663,26 @@
         // 更新歷史記錄
         function updateHistory() {
             const historyContainer = document.getElementById('historyNumbers');
-            const currentCount = historyContainer.children.length;
+            
+            // 清空並重新渲染，確保排序正確
+            historyContainer.innerHTML = '';
             
             if (drawnNumbers.length === 0) {
-                historyContainer.innerHTML = '';
-            } else if (drawnNumbers.length > currentCount) {
-                for (let i = currentCount; i < drawnNumbers.length; i++) {
-                    setTimeout(() => {
-                        const span = document.createElement('div');
-                        span.className = 'history-number';
-                        span.textContent = drawnNumbers[i];
-                        historyContainer.appendChild(span);
-                    }, (i - currentCount) * 100);
-                }
+                return;
             }
+            
+            // 將號碼從小到大排序
+            const sortedNumbers = [...drawnNumbers].sort((a, b) => a - b);
+            
+            // 顯示排序後的號碼
+            sortedNumbers.forEach((num, index) => {
+                setTimeout(() => {
+                    const span = document.createElement('div');
+                    span.className = 'history-number';
+                    span.textContent = num;
+                    historyContainer.appendChild(span);
+                }, index * 50);
+            });
         }
 
         // 重置
