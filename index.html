@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隨機號碼產生器 (1-40)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', 'Microsoft JhengHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .number-display {
+            width: 180px;
+            height: 180px;
+            margin: 30px auto;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 72px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            transition: transform 0.3s ease;
+        }
+
+        .number-display.animate {
+            animation: pop 0.5s ease;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .number-display.empty {
+            background: #e0e0e0;
+            color: #999;
+            font-size: 24px;
+        }
+
+        .controls {
+            margin: 30px 0;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        button:disabled:hover {
+            transform: none;
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .reset-btn:hover {
+            box-shadow: 0 7px 20px rgba(245, 87, 108, 0.6);
+        }
+
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            color: #666;
+        }
+
+        .info-item {
+            margin: 8px 0;
+            font-size: 16px;
+        }
+
+        .info-item strong {
+            color: #333;
+        }
+
+        .history {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .history-numbers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .history-number {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .history-numbers:empty::after {
+            content: '尚未抽取任何號碼';
+            color: #999;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎲 隨機號碼產生器</h1>
+        <p class="subtitle">從 1 到 40 不重複抽號</p>
+
+        <div id="numberDisplay" class="number-display empty">
+            ?
+        </div>
+
+        <div class="controls">
+            <button id="drawBtn" onclick="drawNumber()">抽取號碼</button>
+            <button class="reset-btn" onclick="reset()">重新開始</button>
+        </div>
+
+        <div class="info">
+            <div class="info-item">
+                <strong>已抽取:</strong> <span id="drawnCount">0</span> / 40
+            </div>
+            <div class="info-item">
+                <strong>剩餘:</strong> <span id="remainingCount">40</span>
+            </div>
+        </div>
+
+        <div class="history">
+            <h3>已抽取的號碼</h3>
+            <div id="historyNumbers" class="history-numbers"></div>
+        </div>
+    </div>
+
+    <script>
+        let availableNumbers = [];
+        let drawnNumbers = [];
+
+        // 初始化
+        function init() {
+            availableNumbers = [];
+            for (let i = 1; i <= 40; i++) {
+                availableNumbers.push(i);
+            }
+            drawnNumbers = [];
+            updateDisplay();
+            updateInfo();
+            updateHistory();
+        }
+
+        // 抽取號碼
+        function drawNumber() {
+            if (availableNumbers.length === 0) {
+                alert('所有號碼都已抽取完畢！');
+                return;
+            }
+
+            // 從可用號碼中隨機選一個
+            const randomIndex = Math.floor(Math.random() * availableNumbers.length);
+            const selectedNumber = availableNumbers[randomIndex];
+
+            // 從可用號碼中移除
+            availableNumbers.splice(randomIndex, 1);
+            
+            // 加入已抽取號碼
+            drawnNumbers.push(selectedNumber);
+
+            // 更新顯示
+            const display = document.getElementById('numberDisplay');
+            display.textContent = selectedNumber;
+            display.classList.remove('empty');
+            display.classList.remove('animate');
+            
+            // 觸發動畫
+            setTimeout(() => {
+                display.classList.add('animate');
+            }, 10);
+
+            updateInfo();
+            updateHistory();
+
+            // 如果抽完了，禁用按鈕
+            if (availableNumbers.length === 0) {
+                document.getElementById('drawBtn').disabled = true;
+            }
+        }
+
+        // 更新顯示
+        function updateDisplay() {
+            const display = document.getElementById('numberDisplay');
+            if (drawnNumbers.length === 0) {
+                display.textContent = '?';
+                display.classList.add('empty');
+            }
+        }
+
+        // 更新資訊
+        function updateInfo() {
+            document.getElementById('drawnCount').textContent = drawnNumbers.length;
+            document.getElementById('remainingCount').textContent = availableNumbers.length;
+        }
+
+        // 更新歷史記錄
+        function updateHistory() {
+            const historyContainer = document.getElementById('historyNumbers');
+            historyContainer.innerHTML = '';
+            
+            drawnNumbers.forEach(num => {
+                const span = document.createElement('div');
+                span.className = 'history-number';
+                span.textContent = num;
+                historyContainer.appendChild(span);
+            });
+        }
+
+        // 重置
+        function reset() {
+            if (drawnNumbers.length > 0 && confirm('確定要重新開始嗎？')) {
+                init();
+                document.getElementById('drawBtn').disabled = false;
+                const display = document.getElementById('numberDisplay');
+                display.textContent = '?';
+                display.classList.add('empty');
+                display.classList.remove('animate');
+            } else if (drawnNumbers.length === 0) {
+                // 如果還沒抽過號碼，直接重置
+                init();
+                document.getElementById('drawBtn').disabled = false;
+                const display = document.getElementById('numberDisplay');
+                display.textContent = '?';
+                display.classList.add('empty');
+                display.classList.remove('animate');
+            }
+        }
+
+        // 頁面載入時初始化
+        init();
+    </script>
+</body>
+</html>
