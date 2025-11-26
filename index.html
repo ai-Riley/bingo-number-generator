@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BINGO號碼 (1-40)</title>
+    <title>BINGO號碼產生器 (1-40)</title>
     <style>
         * {
             margin: 0;
@@ -19,6 +19,7 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
+            overflow-x: hidden;
         }
 
         .container {
@@ -27,7 +28,7 @@
             padding: 40px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             text-align: center;
-            max-width: 500px;
+            max-width: 600px;
             width: 100%;
         }
 
@@ -43,36 +44,172 @@
             font-size: 14px;
         }
 
-        .number-display {
-            width: 180px;
-            height: 180px;
+        /* 抽獎機容器 */
+        .lottery-machine {
+            position: relative;
+            width: 100%;
+            height: 400px;
             margin: 30px auto;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            perspective: 1000px;
+        }
+
+        /* 抽獎箱 */
+        .lottery-box {
+            position: relative;
+            width: 280px;
+            height: 250px;
+            margin: 0 auto;
+            background: linear-gradient(145deg, #e6e6e6, #ffffff);
+            border-radius: 20px;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.2),
+                inset 0 -5px 20px rgba(0, 0, 0, 0.1);
+            border: 5px solid #ddd;
+            overflow: visible;
+        }
+
+        /* 箱子開口 */
+        .box-opening {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 40px;
+            background: linear-gradient(180deg, #333, #555);
+            border-radius: 10px 10px 0 0;
+            box-shadow: inset 0 5px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 箱子裝飾 */
+        .box-decoration {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 60px;
+            opacity: 0.1;
+        }
+
+        /* 抽出的號碼球 */
+        .drawn-ball {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 72px;
+            font-size: 60px;
             font-weight: bold;
             color: white;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-            transition: transform 0.3s ease;
+            box-shadow: 
+                0 15px 35px rgba(238, 90, 111, 0.4),
+                inset 0 -5px 15px rgba(0, 0, 0, 0.2),
+                inset 0 5px 15px rgba(255, 255, 255, 0.3);
+            top: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            z-index: 10;
         }
 
-        .number-display.animate {
-            animation: pop 0.5s ease;
+        /* 球彈出動畫 */
+        @keyframes ballPop {
+            0% {
+                top: 50%;
+                opacity: 0;
+                transform: translateX(-50%) scale(0.3) rotate(0deg);
+            }
+            40% {
+                top: -20px;
+                opacity: 1;
+                transform: translateX(-50%) scale(1.2) rotate(180deg);
+            }
+            60% {
+                top: -80px;
+                transform: translateX(-50%) scale(0.95) rotate(270deg);
+            }
+            80% {
+                top: -70px;
+                transform: translateX(-50%) scale(1.05) rotate(340deg);
+            }
+            100% {
+                top: -80px;
+                opacity: 1;
+                transform: translateX(-50%) scale(1) rotate(360deg);
+            }
         }
 
-        @keyframes pop {
-            0% { transform: scale(0.8); opacity: 0; }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); opacity: 1; }
+        /* 球滾動動畫 */
+        @keyframes ballRoll {
+            0%, 100% {
+                transform: translateX(-50%) rotate(0deg);
+            }
+            25% {
+                transform: translateX(-50%) rotate(90deg);
+            }
+            50% {
+                transform: translateX(-50%) rotate(180deg);
+            }
+            75% {
+                transform: translateX(-50%) rotate(270deg);
+            }
         }
 
-        .number-display.empty {
-            background: #e0e0e0;
-            color: #999;
-            font-size: 24px;
+        /* 箱子震動動畫 */
+        @keyframes boxShake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .drawn-ball.animate {
+            animation: ballPop 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            opacity: 1;
+        }
+
+        .drawn-ball.idle {
+            animation: ballRoll 3s ease-in-out infinite;
+        }
+
+        .lottery-box.shaking {
+            animation: boxShake 0.5s;
+        }
+
+        /* 箱子內的號碼球（裝飾用） */
+        .ball-decoration {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            opacity: 0.3;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .ball-decoration:nth-child(1) {
+            top: 30%;
+            left: 20%;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .ball-decoration:nth-child(2) {
+            top: 50%;
+            right: 25%;
+            animation: float 4s ease-in-out infinite 0.5s;
+        }
+
+        .ball-decoration:nth-child(3) {
+            bottom: 30%;
+            left: 30%;
+            animation: float 3.5s ease-in-out infinite 1s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
         }
 
         .controls {
@@ -91,6 +228,26 @@
             transition: all 0.3s ease;
             font-weight: bold;
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:hover:before {
+            width: 300px;
+            height: 300px;
         }
 
         button:hover {
@@ -112,6 +269,10 @@
             transform: none;
         }
 
+        button:disabled:before {
+            display: none;
+        }
+
         .reset-btn {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         }
@@ -126,15 +287,19 @@
             background: #f5f5f5;
             border-radius: 10px;
             color: #666;
+            display: flex;
+            justify-content: space-around;
         }
 
         .info-item {
-            margin: 8px 0;
             font-size: 16px;
         }
 
         .info-item strong {
             color: #333;
+            display: block;
+            font-size: 24px;
+            margin-top: 5px;
         }
 
         .history {
@@ -160,8 +325,8 @@
         }
 
         .history-number {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-radius: 50%;
@@ -169,7 +334,20 @@
             justify-content: center;
             align-items: center;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 16px;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+            animation: scaleIn 0.3s ease;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         .history-numbers:empty::after {
@@ -177,28 +355,53 @@
             color: #999;
             font-size: 14px;
         }
+
+        /* 粒子效果 */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #f0f;
+            opacity: 0;
+        }
+
+        @keyframes confettiFall {
+            to {
+                transform: translateY(400px) rotate(360deg);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎲 BINGO號碼產生器</h1>
+        <h1>🎰 BINGO號碼產生器</h1>
         <p class="subtitle">從 1 到 40 不重複抽號</p>
 
-        <div id="numberDisplay" class="number-display empty">
-            ?
+        <div class="lottery-machine">
+            <div class="lottery-box" id="lotteryBox">
+                <div class="box-opening"></div>
+                <div class="box-decoration">🎲</div>
+                <div class="ball-decoration"></div>
+                <div class="ball-decoration"></div>
+                <div class="ball-decoration"></div>
+            </div>
+            <div class="drawn-ball" id="drawnBall">?</div>
         </div>
 
         <div class="controls">
-            <button id="drawBtn" onclick="drawNumber()">抽取號碼</button>
-            <button class="reset-btn" onclick="reset()">重新開始</button>
+            <button id="drawBtn" onclick="drawNumber()">🎯 抽取號碼</button>
+            <button class="reset-btn" onclick="reset()">🔄 重新開始</button>
         </div>
 
         <div class="info">
             <div class="info-item">
-                <strong>已抽取:</strong> <span id="drawnCount">0</span> / 40
+                <span>已抽取</span>
+                <strong id="drawnCount">0</strong>
             </div>
             <div class="info-item">
-                <strong>剩餘:</strong> <span id="remainingCount">40</span>
+                <span>剩餘</span>
+                <strong id="remainingCount">40</strong>
             </div>
         </div>
 
@@ -224,49 +427,89 @@
             updateHistory();
         }
 
+        // 創建彩紙效果
+        function createConfetti() {
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f7b731', '#5f27cd', '#00d2d3'];
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animation = `confettiFall ${Math.random() * 2 + 2}s linear`;
+                    document.querySelector('.lottery-machine').appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 4000);
+                }, i * 30);
+            }
+        }
+
         // 抽取號碼
         function drawNumber() {
             if (availableNumbers.length === 0) {
-                alert('所有號碼都已抽取完畢！');
+                alert('所有號碼都已抽取完畢！🎉');
                 return;
             }
 
-            // 從可用號碼中隨機選一個
-            const randomIndex = Math.floor(Math.random() * availableNumbers.length);
-            const selectedNumber = availableNumbers[randomIndex];
+            // 禁用按鈕
+            document.getElementById('drawBtn').disabled = true;
 
-            // 從可用號碼中移除
-            availableNumbers.splice(randomIndex, 1);
-            
-            // 加入已抽取號碼
-            drawnNumbers.push(selectedNumber);
+            // 箱子震動效果
+            const box = document.getElementById('lotteryBox');
+            box.classList.add('shaking');
 
-            // 更新顯示
-            const display = document.getElementById('numberDisplay');
-            display.textContent = selectedNumber;
-            display.classList.remove('empty');
-            display.classList.remove('animate');
-            
-            // 觸發動畫
             setTimeout(() => {
-                display.classList.add('animate');
-            }, 10);
+                box.classList.remove('shaking');
 
-            updateInfo();
-            updateHistory();
+                // 從可用號碼中隨機選一個
+                const randomIndex = Math.floor(Math.random() * availableNumbers.length);
+                const selectedNumber = availableNumbers[randomIndex];
 
-            // 如果抽完了，禁用按鈕
-            if (availableNumbers.length === 0) {
-                document.getElementById('drawBtn').disabled = true;
-            }
+                // 從可用號碼中移除
+                availableNumbers.splice(randomIndex, 1);
+                
+                // 加入已抽取號碼
+                drawnNumbers.push(selectedNumber);
+
+                // 更新顯示 - 球彈出動畫
+                const ball = document.getElementById('drawnBall');
+                ball.textContent = selectedNumber;
+                ball.classList.remove('idle');
+                ball.classList.remove('animate');
+                
+                // 觸發動畫
+                setTimeout(() => {
+                    ball.classList.add('animate');
+                    createConfetti();
+                }, 10);
+
+                // 動畫結束後添加idle動畫
+                setTimeout(() => {
+                    ball.classList.remove('animate');
+                    ball.classList.add('idle');
+                    document.getElementById('drawBtn').disabled = false;
+                }, 1000);
+
+                updateInfo();
+                updateHistory();
+
+                // 如果抽完了，禁用按鈕
+                if (availableNumbers.length === 0) {
+                    setTimeout(() => {
+                        alert('🎊 恭喜！所有號碼都已抽取完畢！');
+                        document.getElementById('drawBtn').disabled = true;
+                    }, 1200);
+                }
+            }, 500);
         }
 
         // 更新顯示
         function updateDisplay() {
-            const display = document.getElementById('numberDisplay');
+            const ball = document.getElementById('drawnBall');
             if (drawnNumbers.length === 0) {
-                display.textContent = '?';
-                display.classList.add('empty');
+                ball.textContent = '?';
+                ball.classList.remove('animate', 'idle');
+                ball.style.opacity = '0';
             }
         }
 
@@ -281,11 +524,13 @@
             const historyContainer = document.getElementById('historyNumbers');
             historyContainer.innerHTML = '';
             
-            drawnNumbers.forEach(num => {
-                const span = document.createElement('div');
-                span.className = 'history-number';
-                span.textContent = num;
-                historyContainer.appendChild(span);
+            drawnNumbers.forEach((num, index) => {
+                setTimeout(() => {
+                    const span = document.createElement('div');
+                    span.className = 'history-number';
+                    span.textContent = num;
+                    historyContainer.appendChild(span);
+                }, index * 50);
             });
         }
 
@@ -294,18 +539,17 @@
             if (drawnNumbers.length > 0 && confirm('確定要重新開始嗎？')) {
                 init();
                 document.getElementById('drawBtn').disabled = false;
-                const display = document.getElementById('numberDisplay');
-                display.textContent = '?';
-                display.classList.add('empty');
-                display.classList.remove('animate');
+                const ball = document.getElementById('drawnBall');
+                ball.textContent = '?';
+                ball.classList.remove('animate', 'idle');
+                ball.style.opacity = '0';
             } else if (drawnNumbers.length === 0) {
-                // 如果還沒抽過號碼，直接重置
                 init();
                 document.getElementById('drawBtn').disabled = false;
-                const display = document.getElementById('numberDisplay');
-                display.textContent = '?';
-                display.classList.add('empty');
-                display.classList.remove('animate');
+                const ball = document.getElementById('drawnBall');
+                ball.textContent = '?';
+                ball.classList.remove('animate', 'idle');
+                ball.style.opacity = '0';
             }
         }
 
