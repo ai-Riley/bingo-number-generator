@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Arial', 'Microsoft JhengHei', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -23,211 +23,279 @@
         }
 
         .container {
-            background: white;
-            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
             padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
             text-align: center;
-            max-width: 600px;
+            max-width: 700px;
             width: 100%;
         }
 
         h1 {
-            color: #333;
+            color: #1e3c72;
             margin-bottom: 10px;
-            font-size: 28px;
+            font-size: 32px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .subtitle {
             color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
+            margin-bottom: 40px;
+            font-size: 16px;
         }
 
-        /* 抽獎機容器 */
-        .lottery-machine {
-            position: relative;
+        /* 3D場景 */
+        .scene {
             width: 100%;
-            height: 400px;
-            margin: 30px auto;
-            perspective: 1000px;
-        }
-
-        /* 抽獎箱 */
-        .lottery-box {
+            height: 500px;
+            perspective: 1200px;
             position: relative;
-            width: 280px;
-            height: 250px;
-            margin: 0 auto;
-            background: linear-gradient(145deg, #e6e6e6, #ffffff);
-            border-radius: 20px;
-            box-shadow: 
-                0 20px 40px rgba(0, 0, 0, 0.2),
-                inset 0 -5px 20px rgba(0, 0, 0, 0.1);
-            border: 5px solid #ddd;
-            overflow: visible;
+            margin: 20px 0;
         }
 
-        /* 箱子開口 */
-        .box-opening {
+        /* 立體透明箱子容器 */
+        .box-3d {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 80px auto 0;
+            transform-style: preserve-3d;
+            transform: rotateX(-10deg) rotateY(15deg);
+            transition: transform 0.3s ease;
+        }
+
+        .box-3d.shaking {
+            animation: shake3d 0.5s;
+        }
+
+        @keyframes shake3d {
+            0%, 100% { transform: rotateX(-10deg) rotateY(15deg) translateZ(0); }
+            10%, 30%, 50%, 70%, 90% { 
+                transform: rotateX(-10deg) rotateY(15deg) translateZ(10px) translateX(-8px); 
+            }
+            20%, 40%, 60%, 80% { 
+                transform: rotateX(-10deg) rotateY(15deg) translateZ(10px) translateX(8px); 
+            }
+        }
+
+        /* 箱子的六個面 */
+        .box-face {
             position: absolute;
-            top: -30px;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+            box-shadow: 
+                inset 0 0 30px rgba(255, 255, 255, 0.1),
+                0 0 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .box-front {
+            transform: translateZ(150px);
+        }
+
+        .box-back {
+            transform: translateZ(-150px) rotateY(180deg);
+        }
+
+        .box-right {
+            transform: rotateY(90deg) translateZ(150px);
+        }
+
+        .box-left {
+            transform: rotateY(-90deg) translateZ(150px);
+        }
+
+        .box-top {
+            transform: rotateX(90deg) translateZ(150px);
+            background: rgba(255, 255, 255, 0.25);
+            border: 3px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .box-bottom {
+            transform: rotateX(-90deg) translateZ(150px);
+            background: rgba(100, 100, 100, 0.3);
+        }
+
+        /* 箱子內的黃色球 */
+        .inner-balls {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+        }
+
+        .yellow-ball {
+            position: absolute;
+            width: 35px;
+            height: 35px;
+            background: radial-gradient(circle at 30% 30%, #ffd700, #ffed4e, #f4c430);
+            border-radius: 50%;
+            box-shadow: 
+                inset -5px -5px 10px rgba(0, 0, 0, 0.2),
+                inset 5px 5px 10px rgba(255, 255, 255, 0.5),
+                0 5px 15px rgba(255, 215, 0, 0.4);
+            animation: floatBall 3s ease-in-out infinite;
+        }
+
+        /* 為每個球設置不同的位置和動畫延遲 */
+        .yellow-ball:nth-child(1) { 
+            left: 20%; 
+            bottom: 10%; 
+            transform: translateZ(50px);
+            animation-delay: 0s;
+        }
+        .yellow-ball:nth-child(2) { 
+            left: 50%; 
+            bottom: 5%; 
+            transform: translateZ(-20px);
+            animation-delay: 0.5s;
+        }
+        .yellow-ball:nth-child(3) { 
+            left: 70%; 
+            bottom: 15%; 
+            transform: translateZ(30px);
+            animation-delay: 1s;
+        }
+        .yellow-ball:nth-child(4) { 
+            left: 30%; 
+            bottom: 25%; 
+            transform: translateZ(-40px);
+            animation-delay: 1.5s;
+        }
+        .yellow-ball:nth-child(5) { 
+            left: 60%; 
+            bottom: 30%; 
+            transform: translateZ(20px);
+            animation-delay: 2s;
+        }
+        .yellow-ball:nth-child(6) { 
+            left: 15%; 
+            bottom: 35%; 
+            transform: translateZ(-10px);
+            animation-delay: 2.5s;
+        }
+        .yellow-ball:nth-child(7) { 
+            left: 80%; 
+            bottom: 8%; 
+            transform: translateZ(40px);
+            animation-delay: 0.8s;
+        }
+        .yellow-ball:nth-child(8) { 
+            left: 40%; 
+            bottom: 12%; 
+            transform: translateZ(-30px);
+            animation-delay: 1.3s;
+        }
+        .yellow-ball:nth-child(9) { 
+            left: 55%; 
+            bottom: 20%; 
+            transform: translateZ(10px);
+            animation-delay: 1.8s;
+        }
+        .yellow-ball:nth-child(10) { 
+            left: 25%; 
+            bottom: 18%; 
+            transform: translateZ(-50px);
+            animation-delay: 2.3s;
+        }
+
+        @keyframes floatBall {
+            0%, 100% { transform: translateZ(var(--tz, 0)) translateY(0px); }
+            50% { transform: translateZ(var(--tz, 0)) translateY(-15px); }
+        }
+
+        /* 抽出的大號碼球 */
+        .drawn-ball-container {
+            position: absolute;
+            top: -120px;
             left: 50%;
             transform: translateX(-50%);
-            width: 120px;
-            height: 40px;
-            background: linear-gradient(180deg, #333, #555);
-            border-radius: 10px 10px 0 0;
-            box-shadow: inset 0 5px 10px rgba(0, 0, 0, 0.5);
+            z-index: 100;
         }
 
-        /* 箱子裝飾 */
-        .box-decoration {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 60px;
-            opacity: 0.1;
-        }
-
-        /* 抽出的號碼球 */
         .drawn-ball {
-            position: absolute;
-            width: 120px;
-            height: 120px;
-            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle at 35% 35%, #ff6b6b, #ee5a6f, #dc143c);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 60px;
+            font-size: 70px;
             font-weight: bold;
             color: white;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
             box-shadow: 
-                0 15px 35px rgba(238, 90, 111, 0.4),
-                inset 0 -5px 15px rgba(0, 0, 0, 0.2),
-                inset 0 5px 15px rgba(255, 255, 255, 0.3);
-            top: -80px;
-            left: 50%;
-            transform: translateX(-50%);
+                0 20px 50px rgba(220, 20, 60, 0.5),
+                inset -8px -8px 20px rgba(0, 0, 0, 0.3),
+                inset 8px 8px 20px rgba(255, 255, 255, 0.3);
             opacity: 0;
-            z-index: 10;
-        }
-
-        /* 球彈出動畫 */
-        @keyframes ballPop {
-            0% {
-                top: 50%;
-                opacity: 0;
-                transform: translateX(-50%) scale(0.3) rotate(0deg);
-            }
-            40% {
-                top: -20px;
-                opacity: 1;
-                transform: translateX(-50%) scale(1.2) rotate(180deg);
-            }
-            60% {
-                top: -80px;
-                transform: translateX(-50%) scale(0.95) rotate(270deg);
-            }
-            80% {
-                top: -70px;
-                transform: translateX(-50%) scale(1.05) rotate(340deg);
-            }
-            100% {
-                top: -80px;
-                opacity: 1;
-                transform: translateX(-50%) scale(1) rotate(360deg);
-            }
-        }
-
-        /* 球滾動動畫 */
-        @keyframes ballRoll {
-            0%, 100% {
-                transform: translateX(-50%) rotate(0deg);
-            }
-            25% {
-                transform: translateX(-50%) rotate(90deg);
-            }
-            50% {
-                transform: translateX(-50%) rotate(180deg);
-            }
-            75% {
-                transform: translateX(-50%) rotate(270deg);
-            }
-        }
-
-        /* 箱子震動動畫 */
-        @keyframes boxShake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-            20%, 40%, 60%, 80% { transform: translateX(5px); }
+            transform: scale(0.3);
         }
 
         .drawn-ball.animate {
-            animation: ballPop 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            opacity: 1;
+            animation: ballPopOut 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+        @keyframes ballPopOut {
+            0% {
+                opacity: 0;
+                transform: scale(0.3) translateY(200px) rotate(0deg);
+            }
+            60% {
+                opacity: 1;
+                transform: scale(1.15) translateY(0) rotate(360deg);
+            }
+            80% {
+                transform: scale(0.95) translateY(-10px) rotate(380deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0) rotate(360deg);
+            }
         }
 
         .drawn-ball.idle {
-            animation: ballRoll 3s ease-in-out infinite;
+            opacity: 1;
+            animation: ballBounce 2s ease-in-out infinite;
         }
 
-        .lottery-box.shaking {
-            animation: boxShake 0.5s;
+        @keyframes ballBounce {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
         }
 
-        /* 箱子內的號碼球（裝飾用） */
-        .ball-decoration {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 50%;
-            opacity: 0.3;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        .drawn-ball.moving-out {
+            animation: moveToHistory 0.6s ease-out forwards;
         }
 
-        .ball-decoration:nth-child(1) {
-            top: 30%;
-            left: 20%;
-            animation: float 3s ease-in-out infinite;
+        @keyframes moveToHistory {
+            to {
+                transform: scale(0.3) translateY(100px);
+                opacity: 0;
+            }
         }
 
-        .ball-decoration:nth-child(2) {
-            top: 50%;
-            right: 25%;
-            animation: float 4s ease-in-out infinite 0.5s;
-        }
-
-        .ball-decoration:nth-child(3) {
-            bottom: 30%;
-            left: 30%;
-            animation: float 3.5s ease-in-out infinite 1s;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-        }
-
+        /* 按鈕樣式 */
         .controls {
-            margin: 30px 0;
+            margin: 40px 0 30px;
         }
 
         button {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 15px 40px;
-            font-size: 18px;
+            padding: 18px 45px;
+            font-size: 20px;
             border-radius: 50px;
             cursor: pointer;
-            margin: 5px;
+            margin: 8px;
             transition: all 0.3s ease;
             font-weight: bold;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
             position: relative;
             overflow: hidden;
         }
@@ -240,27 +308,27 @@
             width: 0;
             height: 0;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.4);
             transform: translate(-50%, -50%);
             transition: width 0.6s, height 0.6s;
         }
 
         button:hover:before {
-            width: 300px;
-            height: 300px;
+            width: 350px;
+            height: 350px;
         }
 
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 7px 20px rgba(102, 126, 234, 0.6);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.6);
         }
 
         button:active {
-            transform: translateY(0);
+            transform: translateY(-1px);
         }
 
         button:disabled {
-            background: #ccc;
+            background: linear-gradient(135deg, #ccc, #999);
             cursor: not-allowed;
             box-shadow: none;
         }
@@ -269,83 +337,87 @@
             transform: none;
         }
 
-        button:disabled:before {
-            display: none;
-        }
-
         .reset-btn {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         }
 
         .reset-btn:hover {
-            box-shadow: 0 7px 20px rgba(245, 87, 108, 0.6);
+            box-shadow: 0 12px 30px rgba(245, 87, 108, 0.6);
         }
 
+        /* 資訊面板 */
         .info {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f5f5f5;
-            border-radius: 10px;
-            color: #666;
+            margin: 30px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
             display: flex;
             justify-content: space-around;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
         .info-item {
             font-size: 16px;
+            color: #555;
         }
 
         .info-item strong {
-            color: #333;
+            color: #1e3c72;
             display: block;
-            font-size: 24px;
-            margin-top: 5px;
+            font-size: 36px;
+            margin-top: 8px;
+            font-weight: bold;
         }
 
+        /* 歷史記錄 */
         .history {
             margin-top: 30px;
-            padding: 20px;
-            background: #f9f9f9;
-            border-radius: 10px;
-            max-height: 200px;
+            padding: 25px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
+            max-height: 250px;
             overflow-y: auto;
         }
 
         .history h3 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 18px;
+            color: #1e3c72;
+            margin-bottom: 20px;
+            font-size: 20px;
         }
 
         .history-numbers {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 10px;
             justify-content: center;
         }
 
         .history-number {
-            width: 45px;
-            height: 45px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle at 35% 35%, #ffd700, #ffed4e, #f4c430);
+            color: #333;
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
             font-weight: bold;
-            font-size: 16px;
-            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
-            animation: scaleIn 0.3s ease;
+            font-size: 18px;
+            box-shadow: 
+                0 4px 15px rgba(255, 215, 0, 0.4),
+                inset -3px -3px 8px rgba(0, 0, 0, 0.2),
+                inset 3px 3px 8px rgba(255, 255, 255, 0.5);
+            animation: historyBallIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
 
-        @keyframes scaleIn {
+        @keyframes historyBallIn {
             from {
-                transform: scale(0);
+                transform: scale(0) rotate(0deg);
                 opacity: 0;
             }
             to {
-                transform: scale(1);
+                transform: scale(1) rotate(360deg);
                 opacity: 1;
             }
         }
@@ -353,23 +425,44 @@
         .history-numbers:empty::after {
             content: '尚未抽取任何號碼';
             color: #999;
-            font-size: 14px;
+            font-size: 16px;
+            font-style: italic;
         }
 
-        /* 粒子效果 */
+        /* 彩紙效果 */
         .confetti {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: #f0f;
+            position: fixed;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
             opacity: 0;
+            z-index: 1000;
         }
 
         @keyframes confettiFall {
             to {
-                transform: translateY(400px) rotate(360deg);
+                transform: translateY(100vh) rotate(720deg);
                 opacity: 0;
             }
+        }
+
+        /* 滾動條美化 */
+        .history::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .history::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .history::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+        }
+
+        .history::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #764ba2, #667eea);
         }
     </style>
 </head>
@@ -378,15 +471,32 @@
         <h1>🎰 隨機號碼產生器</h1>
         <p class="subtitle">從 1 到 40 不重複抽號</p>
 
-        <div class="lottery-machine">
-            <div class="lottery-box" id="lotteryBox">
-                <div class="box-opening"></div>
-                <div class="box-decoration">🎲</div>
-                <div class="ball-decoration"></div>
-                <div class="ball-decoration"></div>
-                <div class="ball-decoration"></div>
+        <div class="scene">
+            <div class="drawn-ball-container">
+                <div class="drawn-ball" id="drawnBall">?</div>
             </div>
-            <div class="drawn-ball" id="drawnBall">?</div>
+
+            <div class="box-3d" id="box3d">
+                <div class="box-face box-front"></div>
+                <div class="box-face box-back"></div>
+                <div class="box-face box-right"></div>
+                <div class="box-face box-left"></div>
+                <div class="box-face box-top"></div>
+                <div class="box-face box-bottom"></div>
+                
+                <div class="inner-balls">
+                    <div class="yellow-ball" style="--tz: 50px;"></div>
+                    <div class="yellow-ball" style="--tz: -20px;"></div>
+                    <div class="yellow-ball" style="--tz: 30px;"></div>
+                    <div class="yellow-ball" style="--tz: -40px;"></div>
+                    <div class="yellow-ball" style="--tz: 20px;"></div>
+                    <div class="yellow-ball" style="--tz: -10px;"></div>
+                    <div class="yellow-ball" style="--tz: 40px;"></div>
+                    <div class="yellow-ball" style="--tz: -30px;"></div>
+                    <div class="yellow-ball" style="--tz: 10px;"></div>
+                    <div class="yellow-ball" style="--tz: -50px;"></div>
+                </div>
+            </div>
         </div>
 
         <div class="controls">
@@ -414,7 +524,7 @@
     <script>
         let availableNumbers = [];
         let drawnNumbers = [];
-        let currentNumber = null; // 當前顯示的號碼
+        let currentNumber = null;
 
         // 初始化
         function init() {
@@ -431,40 +541,84 @@
 
         // 創建彩紙效果
         function createConfetti() {
-            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f7b731', '#5f27cd', '#00d2d3'];
-            for (let i = 0; i < 30; i++) {
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f7b731', '#5f27cd', '#00d2d3', '#ffd700'];
+            for (let i = 0; i < 40; i++) {
                 setTimeout(() => {
                     const confetti = document.createElement('div');
                     confetti.className = 'confetti';
-                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.left = (Math.random() * 100) + '%';
+                    confetti.style.top = '-20px';
                     confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
                     confetti.style.animation = `confettiFall ${Math.random() * 2 + 2}s linear`;
-                    document.querySelector('.lottery-machine').appendChild(confetti);
+                    document.body.appendChild(confetti);
                     
                     setTimeout(() => confetti.remove(), 4000);
-                }, i * 30);
+                }, i * 20);
             }
         }
 
         // 將當前號碼移到歷史區
         function moveToHistory() {
             if (currentNumber !== null) {
-                // 加入已抽取號碼
                 drawnNumbers.push(currentNumber);
                 
-                // 創建移動動畫效果
                 const ball = document.getElementById('drawnBall');
-                ball.style.transition = 'all 0.5s ease-out';
-                ball.style.transform = 'translateX(-50%) scale(0.3)';
-                ball.style.opacity = '0';
+                ball.classList.remove('idle', 'animate');
+                ball.classList.add('moving-out');
                 
                 setTimeout(() => {
                     updateHistory();
-                    ball.style.transition = '';
-                }, 500);
+                    ball.classList.remove('moving-out');
+                    ball.style.opacity = '0';
+                    ball.style.transform = 'scale(0.3)';
+                }, 600);
                 
                 currentNumber = null;
             }
+        }
+
+        // 執行抽獎動畫
+        function performDraw() {
+            const box = document.getElementById('box3d');
+            box.classList.add('shaking');
+
+            setTimeout(() => {
+                box.classList.remove('shaking');
+
+                const randomIndex = Math.floor(Math.random() * availableNumbers.length);
+                const selectedNumber = availableNumbers[randomIndex];
+                availableNumbers.splice(randomIndex, 1);
+                currentNumber = selectedNumber;
+
+                const ball = document.getElementById('drawnBall');
+                ball.textContent = selectedNumber;
+                ball.classList.remove('idle', 'animate', 'moving-out');
+                ball.style.opacity = '';
+                ball.style.transform = '';
+                
+                setTimeout(() => {
+                    ball.classList.add('animate');
+                    createConfetti();
+                }, 50);
+
+                setTimeout(() => {
+                    ball.classList.remove('animate');
+                    ball.classList.add('idle');
+                    document.getElementById('drawBtn').disabled = false;
+                }, 1200);
+
+                updateInfo();
+
+                if (availableNumbers.length === 0) {
+                    setTimeout(() => {
+                        moveToHistory();
+                        setTimeout(() => {
+                            alert('🎊 恭喜！所有號碼都已抽取完畢！');
+                            document.getElementById('drawBtn').disabled = true;
+                        }, 700);
+                    }, 1500);
+                }
+            }, 500);
         }
 
         // 抽取號碼
@@ -474,90 +628,31 @@
                 return;
             }
 
-            // 禁用按鈕
             document.getElementById('drawBtn').disabled = true;
 
-            // 如果有當前號碼，先移到歷史區
             if (currentNumber !== null) {
                 moveToHistory();
-                
-                // 等待移動動畫完成後再抽新號碼
                 setTimeout(() => {
                     performDraw();
-                }, 600);
+                }, 700);
             } else {
-                // 沒有當前號碼，直接抽
                 performDraw();
             }
-        }
-
-        // 執行抽獎動畫
-        function performDraw() {
-            // 箱子震動效果
-            const box = document.getElementById('lotteryBox');
-            box.classList.add('shaking');
-
-            setTimeout(() => {
-                box.classList.remove('shaking');
-
-                // 從可用號碼中隨機選一個
-                const randomIndex = Math.floor(Math.random() * availableNumbers.length);
-                const selectedNumber = availableNumbers[randomIndex];
-
-                // 從可用號碼中移除
-                availableNumbers.splice(randomIndex, 1);
-                
-                // 設置為當前號碼（但不加入歷史）
-                currentNumber = selectedNumber;
-
-                // 更新顯示 - 球彈出動畫
-                const ball = document.getElementById('drawnBall');
-                ball.textContent = selectedNumber;
-                ball.classList.remove('idle');
-                ball.classList.remove('animate');
-                ball.style.transform = '';
-                ball.style.opacity = '';
-                
-                // 觸發動畫
-                setTimeout(() => {
-                    ball.classList.add('animate');
-                    createConfetti();
-                }, 10);
-
-                // 動畫結束後添加idle動畫
-                setTimeout(() => {
-                    ball.classList.remove('animate');
-                    ball.classList.add('idle');
-                    document.getElementById('drawBtn').disabled = false;
-                }, 1000);
-
-                updateInfo();
-
-                // 如果抽完了，禁用按鈕
-                if (availableNumbers.length === 0) {
-                    setTimeout(() => {
-                        // 最後一個號碼也要移到歷史區
-                        moveToHistory();
-                        alert('🎊 恭喜！所有號碼都已抽取完畢！');
-                        document.getElementById('drawBtn').disabled = true;
-                    }, 1200);
-                }
-            }, 500);
         }
 
         // 更新顯示
         function updateDisplay() {
             const ball = document.getElementById('drawnBall');
-            if (drawnNumbers.length === 0) {
+            if (drawnNumbers.length === 0 && currentNumber === null) {
                 ball.textContent = '?';
-                ball.classList.remove('animate', 'idle');
+                ball.classList.remove('animate', 'idle', 'moving-out');
                 ball.style.opacity = '0';
+                ball.style.transform = 'scale(0.3)';
             }
         }
 
         // 更新資訊
         function updateInfo() {
-            // 已抽取的數量 = 歷史區的數量 + (如果有當前號碼則+1)
             const totalDrawn = drawnNumbers.length + (currentNumber !== null ? 1 : 0);
             document.getElementById('drawnCount').textContent = totalDrawn;
             document.getElementById('remainingCount').textContent = availableNumbers.length;
@@ -566,18 +661,18 @@
         // 更新歷史記錄
         function updateHistory() {
             const historyContainer = document.getElementById('historyNumbers');
-            // 只添加新的號碼，不清空全部
             const currentCount = historyContainer.children.length;
             
             if (drawnNumbers.length === 0) {
                 historyContainer.innerHTML = '';
             } else if (drawnNumbers.length > currentCount) {
-                // 只添加新的號碼
                 for (let i = currentCount; i < drawnNumbers.length; i++) {
-                    const span = document.createElement('div');
-                    span.className = 'history-number';
-                    span.textContent = drawnNumbers[i];
-                    historyContainer.appendChild(span);
+                    setTimeout(() => {
+                        const span = document.createElement('div');
+                        span.className = 'history-number';
+                        span.textContent = drawnNumbers[i];
+                        historyContainer.appendChild(span);
+                    }, (i - currentCount) * 100);
                 }
             }
         }
@@ -589,19 +684,9 @@
                 document.getElementById('drawBtn').disabled = false;
                 const ball = document.getElementById('drawnBall');
                 ball.textContent = '?';
-                ball.classList.remove('animate', 'idle');
+                ball.classList.remove('animate', 'idle', 'moving-out');
                 ball.style.opacity = '0';
-                ball.style.transform = '';
-                ball.style.transition = '';
-            } else if (drawnNumbers.length === 0 && currentNumber === null) {
-                init();
-                document.getElementById('drawBtn').disabled = false;
-                const ball = document.getElementById('drawnBall');
-                ball.textContent = '?';
-                ball.classList.remove('animate', 'idle');
-                ball.style.opacity = '0';
-                ball.style.transform = '';
-                ball.style.transition = '';
+                ball.style.transform = 'scale(0.3)';
             }
         }
 
