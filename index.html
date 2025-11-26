@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BINGO號碼產生器 (1-40)</title>
+    <title>隨機號碼產生器 (1-40)</title>
     <style>
         * {
             margin: 0;
@@ -375,7 +375,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎰 BINGO號碼產生器</h1>
+        <h1>🎰 隨機號碼產生器</h1>
         <p class="subtitle">從 1 到 40 不重複抽號</p>
 
         <div class="lottery-machine">
@@ -406,7 +406,7 @@
         </div>
 
         <div class="history">
-            <h3>已抽取的號碼</h3>
+            <h3>📋 已抽取的號碼</h3>
             <div id="historyNumbers" class="history-numbers"></div>
         </div>
     </div>
@@ -414,6 +414,7 @@
     <script>
         let availableNumbers = [];
         let drawnNumbers = [];
+        let currentNumber = null; // 當前顯示的號碼
 
         // 初始化
         function init() {
@@ -422,6 +423,7 @@
                 availableNumbers.push(i);
             }
             drawnNumbers = [];
+            currentNumber = null;
             updateDisplay();
             updateInfo();
             updateHistory();
@@ -444,6 +446,27 @@
             }
         }
 
+        // 將當前號碼移到歷史區
+        function moveToHistory() {
+            if (currentNumber !== null) {
+                // 加入已抽取號碼
+                drawnNumbers.push(currentNumber);
+                
+                // 創建移動動畫效果
+                const ball = document.getElementById('drawnBall');
+                ball.style.transition = 'all 0.5s ease-out';
+                ball.style.transform = 'translateX(-50%) scale(0.3)';
+                ball.style.opacity = '0';
+                
+                setTimeout(() => {
+                    updateHistory();
+                    ball.style.transition = '';
+                }, 500);
+                
+                currentNumber = null;
+            }
+        }
+
         // 抽取號碼
         function drawNumber() {
             if (availableNumbers.length === 0) {
@@ -454,6 +477,22 @@
             // 禁用按鈕
             document.getElementById('drawBtn').disabled = true;
 
+            // 如果有當前號碼，先移到歷史區
+            if (currentNumber !== null) {
+                moveToHistory();
+                
+                // 等待移動動畫完成後再抽新號碼
+                setTimeout(() => {
+                    performDraw();
+                }, 600);
+            } else {
+                // 沒有當前號碼，直接抽
+                performDraw();
+            }
+        }
+
+        // 執行抽獎動畫
+        function performDraw() {
             // 箱子震動效果
             const box = document.getElementById('lotteryBox');
             box.classList.add('shaking');
@@ -468,14 +507,16 @@
                 // 從可用號碼中移除
                 availableNumbers.splice(randomIndex, 1);
                 
-                // 加入已抽取號碼
-                drawnNumbers.push(selectedNumber);
+                // 設置為當前號碼（但不加入歷史）
+                currentNumber = selectedNumber;
 
                 // 更新顯示 - 球彈出動畫
                 const ball = document.getElementById('drawnBall');
                 ball.textContent = selectedNumber;
                 ball.classList.remove('idle');
                 ball.classList.remove('animate');
+                ball.style.transform = '';
+                ball.style.opacity = '';
                 
                 // 觸發動畫
                 setTimeout(() => {
@@ -491,11 +532,12 @@
                 }, 1000);
 
                 updateInfo();
-                updateHistory();
 
                 // 如果抽完了，禁用按鈕
                 if (availableNumbers.length === 0) {
                     setTimeout(() => {
+                        // 最後一個號碼也要移到歷史區
+                        moveToHistory();
                         alert('🎊 恭喜！所有號碼都已抽取完畢！');
                         document.getElementById('drawBtn').disabled = true;
                     }, 1200);
@@ -515,41 +557,51 @@
 
         // 更新資訊
         function updateInfo() {
-            document.getElementById('drawnCount').textContent = drawnNumbers.length;
+            // 已抽取的數量 = 歷史區的數量 + (如果有當前號碼則+1)
+            const totalDrawn = drawnNumbers.length + (currentNumber !== null ? 1 : 0);
+            document.getElementById('drawnCount').textContent = totalDrawn;
             document.getElementById('remainingCount').textContent = availableNumbers.length;
         }
 
         // 更新歷史記錄
         function updateHistory() {
             const historyContainer = document.getElementById('historyNumbers');
-            historyContainer.innerHTML = '';
+            // 只添加新的號碼，不清空全部
+            const currentCount = historyContainer.children.length;
             
-            drawnNumbers.forEach((num, index) => {
-                setTimeout(() => {
+            if (drawnNumbers.length === 0) {
+                historyContainer.innerHTML = '';
+            } else if (drawnNumbers.length > currentCount) {
+                // 只添加新的號碼
+                for (let i = currentCount; i < drawnNumbers.length; i++) {
                     const span = document.createElement('div');
                     span.className = 'history-number';
-                    span.textContent = num;
+                    span.textContent = drawnNumbers[i];
                     historyContainer.appendChild(span);
-                }, index * 50);
-            });
+                }
+            }
         }
 
         // 重置
         function reset() {
-            if (drawnNumbers.length > 0 && confirm('確定要重新開始嗎？')) {
+            if ((drawnNumbers.length > 0 || currentNumber !== null) && confirm('確定要重新開始嗎？')) {
                 init();
                 document.getElementById('drawBtn').disabled = false;
                 const ball = document.getElementById('drawnBall');
                 ball.textContent = '?';
                 ball.classList.remove('animate', 'idle');
                 ball.style.opacity = '0';
-            } else if (drawnNumbers.length === 0) {
+                ball.style.transform = '';
+                ball.style.transition = '';
+            } else if (drawnNumbers.length === 0 && currentNumber === null) {
                 init();
                 document.getElementById('drawBtn').disabled = false;
                 const ball = document.getElementById('drawnBall');
                 ball.textContent = '?';
                 ball.classList.remove('animate', 'idle');
                 ball.style.opacity = '0';
+                ball.style.transform = '';
+                ball.style.transition = '';
             }
         }
 
